@@ -1,7 +1,8 @@
-//iske andar main dashboard ka page hoga..accessed after sign in
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sun, Moon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/components/shared/AuthContext';
 import Sidebar from '@/components/dashboard/Sidebar';
 import WelcomeSection from '@/components/dashboard/WelcomeSection';
 import TodaysVerse from '@/components/dashboard/TodaysVerse';
@@ -10,6 +11,24 @@ import RecentChats from '@/components/dashboard/RecentChats';
 
 export default function Dashboard() {
   const [darkMode, setDarkMode] = useState(false);
+  const { currentUser, userData } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!currentUser) {
+      router.push('/');
+    }
+  }, [currentUser, router]);
+
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-amber-950 to-slate-900">
+        <div className="text-amber-100 text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  const userName = userData?.firstName || currentUser?.displayName?.split(' ')[0] || 'Seeker';
 
   return (
     <div className={`min-h-screen transition-colors ${
@@ -34,7 +53,7 @@ export default function Dashboard() {
         </div>
 
         <div className="max-w-7xl mx-auto space-y-8">
-          <WelcomeSection darkMode={darkMode} userName="Arjuna" />
+          <WelcomeSection darkMode={darkMode} userName={userName} />
           
           <div className="grid lg:grid-cols-2 gap-8">
             <TodaysVerse darkMode={darkMode} />

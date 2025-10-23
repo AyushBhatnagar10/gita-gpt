@@ -1,1 +1,0 @@
-//socratic/wisdom/story

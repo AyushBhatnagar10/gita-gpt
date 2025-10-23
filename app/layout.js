@@ -5,7 +5,7 @@ import { AuthProvider } from '@/components/shared/AuthContext'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: 'GeetaGPT+ | Your Spiritual AI Companion',
+  title: 'GitaGPT | Your Spiritual AI Companion',
   description: 'Emotionally intelligent spiritual guidance from the Bhagavad Gita',
 }
 

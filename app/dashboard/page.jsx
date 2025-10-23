@@ -6,7 +6,7 @@ import { useAuth } from '@/components/shared/AuthContext';
 import Sidebar from '@/components/dashboard/Sidebar';
 import WelcomeSection from '@/components/dashboard/WelcomeSection';
 import TodaysVerse from '@/components/dashboard/TodaysVerse';
-import MoodCalendar from '@/components/dashboard/MoodCalendar';
+import SpiritualProgress from '@/components/dashboard/SpiritualProgress';
 import RecentChats from '@/components/dashboard/RecentChats';
 
 export default function Dashboard() {
@@ -57,7 +57,7 @@ export default function Dashboard() {
           
           <div className="grid lg:grid-cols-2 gap-8">
             <TodaysVerse darkMode={darkMode} />
-            <MoodCalendar darkMode={darkMode} />
+            <SpiritualProgress darkMode={darkMode} />
           </div>
 
           <RecentChats darkMode={darkMode} />

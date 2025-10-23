@@ -76,7 +76,7 @@ const GeetaGPTLanding = () => {
             <div className="flex items-center space-x-2">
               <BookOpen className={`w-8 h-8 ${darkMode ? 'text-amber-400' : 'text-orange-600'}`} />
               <span className="text-2xl font-bold bg-gradient-to-r from-orange-500 to-amber-600 bg-clip-text text-transparent">
-                GeetaGPT+
+                GitaGPT
               </span>
             </div>
             
@@ -157,7 +157,7 @@ const GeetaGPTLanding = () => {
           <h2 className={`text-4xl font-bold text-center mb-16 ${
             darkMode ? 'text-amber-100' : 'text-slate-900'
           }`}>
-            How GeetaGPT+ Guides You
+            How GitaGPT Guides You
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className={`p-6 rounded-xl transition-all hover:scale-105 ${
@@ -232,7 +232,7 @@ const GeetaGPTLanding = () => {
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-3 gap-8 mb-8">
             <div>
-              <h4 className="text-xl font-bold mb-4">GeetaGPT+</h4>
+              <h4 className="text-xl font-bold mb-4">GitaGPT</h4>
               <p className={darkMode ? 'text-amber-200' : 'text-slate-600'}>
                 Combining ancient wisdom with modern AI to provide compassionate spiritual guidance
               </p>
@@ -248,7 +248,7 @@ const GeetaGPTLanding = () => {
             <div>
               <h4 className="text-xl font-bold mb-4">Contact Us</h4>
               <p className={darkMode ? 'text-amber-200' : 'text-slate-600'}>
-                Email: support@geetagptplus.com
+                Email: support@gitagpt.com
               </p>
               <p className={darkMode ? 'text-amber-200' : 'text-slate-600'}>
                 For guidance and support
@@ -259,7 +259,7 @@ const GeetaGPTLanding = () => {
             darkMode ? 'border-amber-900/30' : 'border-amber-200'
           }`}>
             <p className={darkMode ? 'text-amber-300' : 'text-slate-600'}>
-              © 2025 GeetaGPT+. All rights reserved. Built with devotion and technology.
+              © 2025 GitaGPT. All rights reserved. Built with devotion and technology.
             </p>
           </div>
         </div>

@@ -28,6 +28,37 @@ const GeetaGPTLanding = () => {
       transliteration: "Yada yada hi dharmasya glanir bhavati bharata",
       meaning: "Whenever there is a decline in righteousness and rise in unrighteousness, O Bharata",
       chapter: "Chapter 4, Verse 7"
+    },
+    {
+      sanskrit: "तं विद्याद् दुःखसंयोगवियोगं योगसंज्ञितम्। स निश्चयेन योक्तव्यो योगोऽनिर्विण्णचेतसा।।",
+      transliteration: "taṃ vidyād duḥkhasaṃyogaviyogaṃ yogasaṃjñitam sa niścayena yoktavyo yogo’nirviṇṇacetasā",
+      meaning: "Let it be known: the severance from the union-with-pain is YOGA. This YOGA should be practised with determination and with a mind steady and undespairing.",
+      chapter: "Chapter 6, Verse 23"
+    },
+    {
+      sanskrit: "मय्येव मन आधत्स्व मयि बुद्धिं निवेशय। निवसिष्यसि मय्येव अत ऊर्ध्वं न संशयः।।",
+      transliteration: "mayyeva mana ādhatsva mayi buddhiṃ niveśaya nivasishiyasi mayyeva ata ūrdhvaṃ na saṃśayaḥ",
+      meaning: "Fix your mind on Me alone. Let your intellect dwell in Me. Thus you shall live in Me alone. There is no doubt about this.",
+      chapter: "Chapter 12, Verse 8"
+    },
+  
+    {
+      sanskrit: "वेदाविनाशिनं नित्यं य एनमजमव्ययम्‌ । कथं स पुरुषः पार्थ कं घातयति हन्ति कम्‌ ॥",
+      transliteration: "vedāvināśinaṃ nityaṃ ya enamajamavyayam kathaṃ sa puruṣaḥ pārtha kaṃ ghātayati hanti kam",
+      meaning: "O Partha, how can a person who knows that the soul is indestructible, unborn, eternal and immutable, kill anyone or cause anyone to kill?",
+      chapter: "Chapter 2, Verse 21"
+    },
+    {
+      sanskrit: "मात्रास्पर्शास्तु कौन्तेय शीतोष्णसुखदुःखदाः । आगमापायिनोऽनित्यास्तांस्तितिक्षस्व भारत ।।",
+      transliteration: "mātrā-sparśhās tu kaunteya śhītoṣhṇa-sukha-duḥkha-dāḥ āgamāpāyino ’nityās tans-titikṣhasva bhārata",
+      meaning: "O son of Kunti, the nonpermanent appearance of happiness and distress, and their disappearance in due course, are like the appearance and disappearance of winter and summer seasons. They arise from sense perception, O scion of Bharata, and one must learn to tolerate them without being disturbed.",
+      chapter: "Chapter 2, Verse 14"
+    },
+    {
+      sanskrit: "मन्मना भव मद्भक्तो मद्याजी मां नमस्कुरु। मामेवैष्यसि युक्त्वैवमात्मानं मत्परायणः।।",
+      transliteration: "manmanā bhava madbhakto madyājī māṃ namaskuru māmevaiṣyasi yuktvaivamātmānaṃ matparāyaṇaḥ",
+      meaning: "Engage your mind always in thinking of Me, offer obeisances and worship Me. Being completely absorbed in Me, surely you will come to Me.",
+      chapter: "Chapter 9, Verse 34"
     }
   ];
 
@@ -81,9 +112,9 @@ const GeetaGPTLanding = () => {
             </div>
             
             <div className="flex items-center space-x-6">
-              <a href="#home" className="hover:text-orange-500 transition-colors">Home</a>
-              <a href="#about" className="hover:text-orange-500 transition-colors">About</a>
-              <a href="#contact" className="hover:text-orange-500 transition-colors">Contact</a>
+              <a href="/page" className="hover:text-orange-500 transition-colors">Home</a>
+              <a href="/about/" className="hover:text-orange-500 transition-colors">About</a>
+              <a href="/contact/" className="hover:text-orange-500 transition-colors">Contact</a>
               <button
                 onClick={() => setShowSignIn(true)}
                 className={`px-4 py-2 rounded-lg transition-all ${

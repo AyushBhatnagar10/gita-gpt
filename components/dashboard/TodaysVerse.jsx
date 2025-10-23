@@ -1,0 +1,1 @@
+//daily shlokas from bhagavad gita component

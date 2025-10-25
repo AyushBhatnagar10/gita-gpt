@@ -1,13 +1,15 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
 from app.db.database import get_db
-from app.core.auth import require_auth
+from app.core.auth import require_auth, optional_auth
 from app.models.user import User
 from app.services.emotion_detection import get_emotion_service, EmotionDetectionService
 from app.services.vector_search import VectorSearchService
 from app.services.reflection_generation import get_reflection_service, ReflectionGenerationService
 from app.services.conversation_manager import ConversationManager
 from app.services.logging_service import LoggingService
+from app.services.intent_classification import get_intent_service, IntentClassificationService
+from app.services.casual_chat import get_casual_chat_service, CasualChatService
 from app.schemas.emotion import EmotionData
 from app.schemas.verse import VerseSearchResult
 from app.schemas.reflection import ConversationMessage
@@ -41,10 +43,12 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     """Response model for the main chat endpoint."""
     reflection: str = Field(..., description="Generated reflection with verse and commentary")
-    emotion: EmotionData = Field(..., description="Detected emotion data")
-    verses: List[VerseSearchResult] = Field(..., description="Retrieved verses")
+    emotion: Optional[EmotionData] = Field(None, description="Detected emotion data (null for casual chat)")
+    verses: List[VerseSearchResult] = Field(default_factory=list, description="Retrieved verses (empty for casual chat)")
     session_id: uuid.UUID = Field(..., description="Conversation session ID")
     interaction_mode: str = Field(..., description="Mode used for generation")
+    intent: str = Field(..., description="Classified intent: casual_chat, emotional_query, or spiritual_guidance")
+    intent_confidence: float = Field(..., description="Confidence score for intent classification")
     fallback_used: bool = Field(False, description="Whether any fallback mechanisms were used")
     
     class Config:
@@ -86,7 +90,7 @@ def get_vector_service() -> VectorSearchService:
             _vector_service = VectorSearchService()
             # Initialize database if CSV file exists
             try:
-                _vector_service.initialize_database("../Bhagwad_Gita.csv")
+                _vector_service.initialize_database("Bhagwad_Gita.csv")
             except Exception as e:
                 logger.warning(f"Could not initialize database from CSV: {e}")
         except Exception as e:
@@ -109,7 +113,9 @@ def get_logging_service(db: Session = Depends(get_db)) -> LoggingService:
 @router.post("/", response_model=ChatResponse)
 async def chat(
     request: ChatRequest,
-    current_user: User = Depends(require_auth),
+    current_user: User = Depends(optional_auth),
+    intent_service: IntentClassificationService = Depends(get_intent_service),
+    casual_chat_service: CasualChatService = Depends(get_casual_chat_service),
     emotion_service: EmotionDetectionService = Depends(get_emotion_service),
     vector_service: VectorSearchService = Depends(get_vector_service),
     reflection_service: ReflectionGenerationService = Depends(get_reflection_service),
@@ -163,55 +169,73 @@ async def chat(
                 detail=f"Invalid interaction mode '{request.interaction_mode}'. Must be one of: {valid_modes}"
             )
         
-        logger.info(f"Processing chat request for user {current_user.id}, session {request.session_id}")
+        user_id = current_user.id if current_user else None
+        logger.info(f"Processing chat request for user {user_id}, session {request.session_id}")
         
-        # Step 1: Detect emotions from user input
+        # Step 0: Classify intent to determine routing
         try:
-            emotions_data = emotion_service.detect_emotion(
-                text=request.user_input,
-                threshold=0.3
-            )
-            dominant_emotion_data = emotion_service.get_dominant_emotion(emotions_data)
-            emotion = EmotionData(**dominant_emotion_data)
-            logger.info(f"Detected emotion: {emotion.label} (confidence: {emotion.confidence})")
-            
+            intent, intent_confidence = intent_service.classify_intent(request.user_input)
+            logger.info(f"Classified intent: {intent} (confidence: {intent_confidence})")
         except Exception as e:
-            logger.warning(f"Emotion detection failed, using neutral fallback: {e}")
-            fallback_used = True
-            emotion = EmotionData(
-                label="neutral",
-                confidence=0.5,
-                emoji="😐",
-                color="#F3F4F6"
-            )
+            logger.warning(f"Intent classification failed, defaulting to casual_chat: {e}")
+            intent = "casual_chat"
+            intent_confidence = 0.5
         
-        # Step 2: Search for relevant verses
-        try:
-            verses_data = vector_service.search_verses(
-                query=request.user_input,
-                emotion=emotion.label,
-                top_k=3
-            )
-            verses = [VerseSearchResult(**verse) for verse in verses_data]
-            logger.info(f"Found {len(verses)} relevant verses")
-            
-            if not verses:
-                raise Exception("No verses found")
+        # Step 1: Detect emotions (only for emotional_query intent)
+        emotion = None
+        if intent == "emotional_query":
+            try:
+                emotions_data = emotion_service.detect_emotion(
+                    text=request.user_input,
+                    threshold=0.3
+                )
+                dominant_emotion_data = emotion_service.get_dominant_emotion(emotions_data)
+                emotion = EmotionData(**dominant_emotion_data)
+                logger.info(f"Detected emotion: {emotion.label} (confidence: {emotion.confidence})")
                 
-        except Exception as e:
-            logger.warning(f"Verse search failed, using fallback verse: {e}")
-            fallback_used = True
-            # Fallback to a default verse (BG2.47 - famous karma yoga verse)
-            verses = [VerseSearchResult(
-                id="BG2.47",
-                chapter=2,
-                verse=47,
-                shloka="कर्मण्येवाधिकारस्ते मा फलेषु कदाचन। मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि॥",
-                transliteration="karmaṇy-evādhikāras te mā phaleṣhu kadāchana mā karma-phala-hetur bhūr mā te saṅgo 'stv akarmaṇi",
-                eng_meaning="You have a right to perform your prescribed duty, but not to the fruits of action. Never consider yourself the cause of the results of your activities, and never be attached to not doing your duty.",
-                hin_meaning="तुम्हारा अधिकार केवल कर्म करने में है, फल में नहीं। इसलिए तुम कर्म के फल के हेतु मत बनो और न ही तुम्हारी अकर्म में आसक्ति हो।",
-                similarity_score=0.5
-            )]
+            except Exception as e:
+                logger.warning(f"Emotion detection failed, using neutral fallback: {e}")
+                fallback_used = True
+                emotion = EmotionData(
+                    label="neutral",
+                    confidence=0.5,
+                    emoji="😐",
+                    color="#F3F4F6"
+                )
+        
+        # Step 2: Search for relevant verses (skip for casual_chat)
+        verses = []
+        if intent in ["emotional_query", "spiritual_guidance"]:
+            try:
+                # For emotional queries, include emotion in search
+                # For spiritual guidance, search by query only
+                search_emotion = emotion.label if intent == "emotional_query" and emotion else None
+                
+                verses_data = vector_service.search_verses(
+                    query=request.user_input,
+                    emotion=search_emotion,
+                    top_k=3
+                )
+                verses = [VerseSearchResult(**verse) for verse in verses_data]
+                logger.info(f"Found {len(verses)} relevant verses")
+                
+                if not verses:
+                    raise Exception("No verses found")
+                    
+            except Exception as e:
+                logger.warning(f"Verse search failed, using fallback verse: {e}")
+                fallback_used = True
+                # Fallback to a default verse (BG2.47 - famous karma yoga verse)
+                verses = [VerseSearchResult(
+                    id="BG2.47",
+                    chapter=2,
+                    verse=47,
+                    shloka="कर्मण्येवाधिकारस्ते मा फलेषु कदाचन। मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि॥",
+                    transliteration="karmaṇy-evādhikāras te mā phaleṣhu kadāchana mā karma-phala-hetur bhūr mā te saṅgo 'stv akarmaṇi",
+                    eng_meaning="You have a right to perform your prescribed duty, but not to the fruits of action. Never consider yourself the cause of the results of your activities, and never be attached to not doing your duty.",
+                    hin_meaning="तुम्हारा अधिकार केवल कर्म करने में है, फल में नहीं। इसलिए तुम कर्म के फल के हेतु मत बनो और न ही तुम्हारी अकर्म में आसक्ति हो।",
+                    similarity_score=0.5
+                )]
         
         # Step 3: Handle conversation session
         try:
@@ -246,10 +270,22 @@ async def chat(
                         "story": InteractionMode.STORY
                     }
                     
-                    session = await conversation_manager.create_session(
-                        user_id=current_user.id,
-                        interaction_mode=mode_map[request.interaction_mode]
-                    )
+                    # Only create session if user is authenticated
+                    if current_user:
+                        session = await conversation_manager.create_session(
+                            user_id=current_user.id,
+                            interaction_mode=mode_map[request.interaction_mode]
+                        )
+                    else:
+                        # For unauthenticated users, create a temporary session ID
+                        from app.schemas.conversation import ConversationSessionResponse
+                        session = ConversationSessionResponse(
+                            id=uuid.uuid4(),
+                            user_id=uuid.uuid4(),  # Temporary user ID
+                            interaction_mode=mode_map[request.interaction_mode],
+                            started_at=datetime.utcnow(),
+                            message_count=0
+                        )
                     session_id = session.id
                     conversation_history = []
                     logger.info(f"Created new session: {session_id}")
@@ -266,31 +302,49 @@ async def chat(
             conversation_history = []
             fallback_used = True
         
-        # Step 4: Generate reflection
+        # Step 4: Generate reflection based on intent
         try:
-            reflection_text = reflection_service.generate_reflection(
-                user_input=request.user_input,
-                emotion_data=emotion.model_dump(),
-                verses=[verse.model_dump() for verse in verses],
-                interaction_mode=request.interaction_mode,
-                conversation_history=[msg.model_dump() for msg in conversation_history]
-            )
-            logger.info("Generated reflection using Gemini API")
+            if intent == "casual_chat":
+                # Use casual chat service for greetings and small talk
+                reflection_text = casual_chat_service.generate_response(
+                    user_input=request.user_input,
+                    conversation_history=[msg.model_dump() for msg in conversation_history]
+                )
+                logger.info("Generated casual chat response using Gemini API")
+                
+            elif intent in ["emotional_query", "spiritual_guidance"]:
+                # Use full reflection service with verses
+                reflection_text = reflection_service.generate_reflection(
+                    user_input=request.user_input,
+                    emotion_data=emotion.model_dump() if emotion else {"label": "neutral", "confidence": 0.5},
+                    verses=[verse.model_dump() for verse in verses],
+                    interaction_mode=request.interaction_mode,
+                    conversation_history=[msg.model_dump() for msg in conversation_history]
+                )
+                logger.info(f"Generated {intent} reflection using Gemini API")
             
         except Exception as e:
             logger.warning(f"Reflection generation failed, using fallback: {e}")
             fallback_used = True
             try:
-                reflection_text = reflection_service.generate_fallback_reflection(
-                    user_input=request.user_input,
-                    emotion_data=emotion.model_dump(),
-                    verses=[verse.model_dump() for verse in verses]
-                )
-                logger.info("Generated fallback reflection")
+                if intent == "casual_chat":
+                    reflection_text = casual_chat_service.generate_fallback_response(request.user_input)
+                    logger.info("Generated fallback casual chat response")
+                else:
+                    reflection_text = reflection_service.generate_fallback_reflection(
+                        user_input=request.user_input,
+                        emotion_data=emotion.model_dump() if emotion else {"label": "neutral", "confidence": 0.5},
+                        verses=[verse.model_dump() for verse in verses]
+                    )
+                    logger.info("Generated fallback reflection")
             except Exception as fallback_error:
                 logger.error(f"Fallback reflection also failed: {fallback_error}")
                 # Last resort reflection
-                reflection_text = f"""I understand you're experiencing {emotion.label}. Here's a verse that may provide guidance:
+                if intent == "casual_chat":
+                    reflection_text = "🙏 Namaste! I'm GitaGPT, your spiritual companion. I'm here to help you find wisdom from the Bhagavad Gita. How can I support you today?"
+                elif verses:
+                    emotion_label = emotion.label if emotion else "seeking guidance"
+                    reflection_text = f"""I understand you're {emotion_label}. Here's a verse that may provide guidance:
 
 **Verse {verses[0].chapter}.{verses[0].verse}:**
 
@@ -299,61 +353,72 @@ Sanskrit: {verses[0].shloka}
 English: {verses[0].eng_meaning}
 
 This ancient wisdom reminds us that we can find peace and clarity even in challenging times. Take a moment to reflect on how this teaching might apply to your current situation."""
+                else:
+                    reflection_text = "I'm here to provide guidance from the Bhagavad Gita. Please share what's on your mind."
         
-        # Step 5: Store user message in conversation
-        try:
-            from app.schemas.conversation import MessageRole
-            await conversation_manager.add_message(
-                session_id=session_id,
-                role=MessageRole.USER,
-                content=request.user_input,
-                emotion_data={
-                    "label": emotion.label,
-                    "confidence": emotion.confidence,
-                    "emoji": emotion.emoji,
-                    "color": emotion.color
-                }
-            )
-            logger.info("Stored user message")
-            
-        except Exception as e:
-            logger.warning(f"Failed to store user message: {e}")
-            # Continue without storing - this is not critical for the response
+        # Step 5: Store user message in conversation (only if authenticated)
+        if current_user:
+            try:
+                from app.schemas.conversation import MessageRole
+                emotion_data_dict = None
+                if emotion:
+                    emotion_data_dict = {
+                        "label": emotion.label,
+                        "confidence": emotion.confidence,
+                        "emoji": emotion.emoji,
+                        "color": emotion.color
+                    }
+                
+                await conversation_manager.add_message(
+                    session_id=session_id,
+                    role=MessageRole.USER,
+                    content=request.user_input,
+                    emotion_data=emotion_data_dict
+                )
+                logger.info("Stored user message")
+                
+            except Exception as e:
+                logger.warning(f"Failed to store user message: {e}")
+                # Continue without storing - this is not critical for the response
         
-        # Step 6: Store assistant response in conversation
-        try:
-            from app.schemas.conversation import MessageRole
-            await conversation_manager.add_message(
-                session_id=session_id,
-                role=MessageRole.ASSISTANT,
-                content=reflection_text,
-                verse_id=verses[0].id
-            )
-            logger.info("Stored assistant response")
-            
-        except Exception as e:
-            logger.warning(f"Failed to store assistant response: {e}")
-            # Continue without storing - this is not critical for the response
+        # Step 6: Store assistant response in conversation (only if authenticated)
+        if current_user:
+            try:
+                from app.schemas.conversation import MessageRole
+                verse_id = verses[0].id if verses else None
+                
+                await conversation_manager.add_message(
+                    session_id=session_id,
+                    role=MessageRole.ASSISTANT,
+                    content=reflection_text,
+                    verse_id=verse_id
+                )
+                logger.info("Stored assistant response")
+                
+            except Exception as e:
+                logger.warning(f"Failed to store assistant response: {e}")
+                # Continue without storing - this is not critical for the response
         
-        # Step 7: Log interaction for mood tracking
-        try:
-            await logging_service.log_interaction(
-                user_id=current_user.id,
-                user_input=request.user_input,
-                emotion_data={
-                    "label": emotion.label,
-                    "confidence": emotion.confidence,
-                    "emoji": emotion.emoji,
-                    "color": emotion.color
-                },
-                verse_ids=[verse.id for verse in verses],
-                session_id=session_id
-            )
-            logger.info("Logged interaction for mood tracking")
-            
-        except Exception as e:
-            logger.warning(f"Failed to log interaction: {e}")
-            # Continue without logging - this is not critical for the response
+        # Step 7: Log interaction for mood tracking (only for emotional queries and authenticated users)
+        if current_user and intent == "emotional_query" and emotion:
+            try:
+                await logging_service.log_interaction(
+                    user_id=current_user.id,
+                    user_input=request.user_input,
+                    emotion_data={
+                        "label": emotion.label,
+                        "confidence": emotion.confidence,
+                        "emoji": emotion.emoji,
+                        "color": emotion.color
+                    },
+                    verse_ids=[verse.id for verse in verses],
+                    session_id=session_id
+                )
+                logger.info("Logged interaction for mood tracking")
+                
+            except Exception as e:
+                logger.warning(f"Failed to log interaction: {e}")
+                # Continue without logging - this is not critical for the response
         
         # Return complete response
         response = ChatResponse(
@@ -362,10 +427,12 @@ This ancient wisdom reminds us that we can find peace and clarity even in challe
             verses=verses,
             session_id=session_id,
             interaction_mode=request.interaction_mode,
+            intent=intent,
+            intent_confidence=intent_confidence,
             fallback_used=fallback_used
         )
         
-        logger.info(f"Chat request completed successfully (fallback_used: {fallback_used})")
+        logger.info(f"Chat request completed successfully (intent: {intent}, fallback_used: {fallback_used})")
         return response
         
     except HTTPException:
@@ -409,6 +476,8 @@ This verse reminds us to focus on our actions rather than worrying about outcome
                 verses=[fallback_verse],
                 session_id=request.session_id or uuid.uuid4(),
                 interaction_mode=request.interaction_mode,
+                intent="casual_chat",
+                intent_confidence=0.5,
                 fallback_used=True
             )
             

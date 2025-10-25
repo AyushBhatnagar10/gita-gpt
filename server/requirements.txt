@@ -31,3 +31,6 @@ passlib[bcrypt]==1.7.4
 httpx==0.27.2
 email-validator==2.1.1
 pandas==2.2.3
+
+# Testing and development
+colorama==0.4.6

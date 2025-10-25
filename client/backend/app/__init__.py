@@ -1,1 +1,0 @@
-# GeetaManthan+ Backend Application

@@ -281,3 +281,34 @@ class VectorSearchService:
         
         # Sort by combined score (descending)
         return sorted(verses, key=lambda x: x.get("similarity_score", 0), reverse=True)
+    
+    def get_random_verse(self) -> Optional[Dict]:
+        """
+        Get a random verse from the collection.
+        
+        Returns:
+            Random verse dictionary or None if collection is empty
+        """
+        try:
+            import random
+            
+            # Get total count
+            total_count = self.collection.count()
+            if total_count == 0:
+                return None
+            
+            # Get all IDs and pick a random one
+            all_results = self.collection.get(include=["metadatas"])
+            if not all_results['ids']:
+                return None
+            
+            # Pick a random index
+            random_index = random.randint(0, len(all_results['ids']) - 1)
+            random_id = all_results['ids'][random_index]
+            
+            # Get the verse by ID
+            return self.get_verse_by_id(random_id)
+            
+        except Exception as e:
+            logger.error(f"Failed to get random verse: {e}")
+            return None

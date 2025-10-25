@@ -16,6 +16,10 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://user:password@localhost:5432/geetamanthan")
     
+    # Supabase
+    SUPABASE_URL: str = os.getenv("SUPABASE_URL", "")
+    SUPABASE_ANON_KEY: str = os.getenv("SUPABASE_ANON_KEY", "")
+    
     # AI/ML Settings
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
     HUGGINGFACE_TOKEN: str = os.getenv("HUGGINGFACE_TOKEN", "")
@@ -31,10 +35,12 @@ class Settings(BaseSettings):
     EMOTION_MODEL_FILE: str = "onnx/model_quantized.onnx"
     EMBEDDING_MODEL: str = "all-mpnet-base-v2"
     LLM_MODEL: str = "gemini-2.0-flash"  # Updated model name
+    INTENT_MODEL: str = os.getenv("INTENT_MODEL", "facebook/bart-large-mnli")
     
     # Conversation Settings
     CONVERSATION_MEMORY_WINDOW: int = 5
     EMOTION_CONFIDENCE_THRESHOLD: float = 0.3
+    INTENT_CONFIDENCE_THRESHOLD: float = float(os.getenv("INTENT_CONFIDENCE_THRESHOLD", "0.6"))
     
     class Config:
         case_sensitive = True

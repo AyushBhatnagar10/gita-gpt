@@ -13,7 +13,7 @@ const Sidebar = ({ darkMode }) => {
   const navItems = [
     { icon: Home, label: 'Dashboard', href: '/dashboard' },
     { icon: MessageCircle, label: 'Chat', href: '/chat' },
-    { icon: Calendar, label: 'Mood Tracker', href: '/mood-tracker' },
+    { icon: Calendar, label: 'Spiritual Progress', href: '/spiritual-progress' },
     { icon: BookOpen, label: 'My Journey', href: '/journey' },
     { icon: Settings, label: 'Settings', href: '/settings' },
     { icon: User, label: 'Profile', href: '/profile' },
@@ -44,7 +44,7 @@ const Sidebar = ({ darkMode }) => {
         <div className="flex items-center space-x-2 mb-8">
           <BookOpen className={`w-8 h-8 ${darkMode ? 'text-amber-400' : 'text-orange-600'}`} />
           <span className="text-2xl font-bold bg-gradient-to-r from-orange-500 to-amber-600 bg-clip-text text-transparent">
-            GeetaGPT+
+            GitaGPT
           </span>
         </div>
 

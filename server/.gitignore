@@ -33,8 +33,8 @@ chroma_db/
 
 # Firebase
 firebase-credentials.json
+
 gitagpt-0071009-firebase-adminsdk-fbsvc-2ca6a62675.json
-ayush_credentials.json
 
 # IDE
 .vscode/

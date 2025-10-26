@@ -16,6 +16,7 @@ sentence-transformers==3.2.0
 torch>=2.6.0
 chromadb==0.5.15
 google-generativeai==0.8.3
+supabase
 
 # ONNX Runtime for optimized inference
 optimum[onnxruntime]==1.23.3

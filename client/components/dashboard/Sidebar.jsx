@@ -14,9 +14,11 @@ const Sidebar = ({ darkMode }) => {
     { icon: Home, label: 'Dashboard', href: '/dashboard' },
     { icon: MessageCircle, label: 'Chat', href: '/chat' },
     { icon: Calendar, label: 'Spiritual Progress', href: '/spiritual-progress' },
-    { icon: BookOpen, label: 'My Journey', href: '/journey' },
+    { icon: BookOpen, label: 'My Journey', href: '/my-journey' },
     { icon: Settings, label: 'Settings', href: '/settings' },
     { icon: User, label: 'Profile', href: '/profile' },
+    { icon: MessageCircle, label: 'About', href: '/about' },
+    { icon: Calendar, label: 'Contact', href: '/contact' },
   ];
 
   const handleLogout = async () => {
@@ -42,10 +44,13 @@ const Sidebar = ({ darkMode }) => {
         </button>
 
         <div className="flex items-center space-x-2 mb-8">
-          <BookOpen className={`w-8 h-8 ${darkMode ? 'text-amber-400' : 'text-orange-600'}`} />
-          <span className="text-2xl font-bold bg-gradient-to-r from-orange-500 to-amber-600 bg-clip-text text-transparent">
-            GitaGPT
-          </span>
+              <Link href="/" className="flex items-center space-x-2 cursor-pointer group">
+                <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12 group-hover:drop-shadow-[0_0_8px_rgba(251,146,60,0.8)]" />
+                <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-orange-500 to-amber-600 bg-clip-text text-transparent 
+                  transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(251,146,60,0.5)]">
+                  GitaGPT
+                </span>
+              </Link>
         </div>
 
         <nav className="space-y-2">

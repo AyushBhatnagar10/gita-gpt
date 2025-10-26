@@ -1,10 +1,12 @@
 'use client';
 import React, { useState } from 'react';
 import { Mail, Phone,MapPin, Send, CheckCircle } from 'lucide-react';
+import { Sun, Moon, ChevronUp, MessageCircle, BookOpen, Heart, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import { useThemeMode } from '@/hooks/useThemeMode';
 
 export default function ContactUs() {
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useThemeMode();
   const [showSuccess, setShowSuccess] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -27,7 +29,7 @@ export default function ContactUs() {
   return (
     <div className={`min-h-screen transition-colors ${
       darkMode 
-        ? 'bg-gradient-to-br from-slate-900 via-amber-950 to-slate-900 text-amber-50' 
+        ? 'dark' 
         : 'bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100 text-slate-800'
     }`}>
       {/* Navigation */}
@@ -38,15 +40,25 @@ export default function ContactUs() {
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center space-x-2">
-              <span className="text-2xl font-bold bg-gradient-to-r from-orange-500 to-amber-600 bg-clip-text text-transparent">
-                GitaGPT
-              </span>
-            </Link>
+              <Link href="/" className="flex items-center space-x-2 cursor-pointer group">
+                <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12 group-hover:drop-shadow-[0_0_8px_rgba(251,146,60,0.8)]" />
+                <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-orange-500 to-amber-600 bg-clip-text text-transparent 
+                  transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(251,146,60,0.5)]">
+                  GitaGPT
+                </span>
+              </Link>
             <div className="flex items-center space-x-6">
               <Link href="/" className="hover:text-orange-500 transition-colors">Home</Link>
               <Link href="/about" className="hover:text-orange-500 transition-colors">About</Link>
               <Link href="/contact" className="text-orange-500">Contact</Link>
+              <button
+                onClick={() => setDarkMode(!darkMode)}
+                className={`p-1.5 sm:p-2 rounded-lg transition-all cursor-pointer hover:scale-110 ${
+                  darkMode ? 'bg-amber-900/50 hover:bg-amber-800' : 'bg-orange-100 hover:bg-orange-200'
+                }`}
+              >
+                {darkMode ? <Sun className="w-4 h-4 sm:w-5 sm:h-5" /> : <Moon className="w-4 h-4 sm:w-5 sm:h-5" />}
+              </button>
             </div>
           </div>
         </div>
@@ -71,9 +83,9 @@ export default function ContactUs() {
               darkMode ? 'border-amber-700/30' : 'border-amber-200'
             }`}>
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3671.2926845830557!2d72.56738931496284!3d23.044784684944!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395e848aba5bd449%3A0x4fcedd11614f6516!2sNirma%20University!5e0!3m2!1sen!2sin!4v1234567890123!5m2!1sen!2sin"
-                width="100%"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3669.1366699990326!2d72.5428674753171!3d23.128679179099557!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395e832f45125167%3A0x876cb1cb23c25bdb!2sNirma%20University!5e0!3m2!1sen!2sin!4v1761473028703!5m2!1sen!2sin"
                 height="400"
+                width="600"
                 style={{ border: 0 }}
                 allowFullScreen=""
                 loading="lazy"

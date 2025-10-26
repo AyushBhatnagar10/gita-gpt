@@ -1,10 +1,12 @@
 'use client';
 import React, { useState } from 'react';
-import { BookOpen, Heart, Sparkles, Github, Linkedin, Instagram } from 'lucide-react';
+import { BookOpen, Heart, Sparkles, Github, Linkedin, Instagram, Sun, Moon } from 'lucide-react';
 import Link from 'next/link';
+import { useThemeMode } from '@/hooks/useThemeMode';
+
 
 export default function AboutUs() {
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useThemeMode();
 
   const team = [
     {
@@ -13,7 +15,7 @@ export default function AboutUs() {
       program: 'Integrated CSE-MBA',
       rollNo: '23BTM007',
       github: 'https://github.com/AyushBhatnagar10',
-      linkedin: 'https://linkedin.com/in/AyushBhatnagar',
+      linkedin: 'https://www.linkedin.com/in/ayushbhatnagar2004/',
       instagram: 'https://instagram.com/schobo10'
     },
     {
@@ -21,25 +23,25 @@ export default function AboutUs() {
       semester: '5th Semester',
       program: 'Integrated CSE-MBA',
       rollNo: '23BTM010',
-      github: 'https://github.com/bhavyamishra',
-      linkedin: 'https://linkedin.com/in/bhavyamishra',
-      instagram: 'https://instagram.com/bhavyamishra'
+      github: 'https://github.com/pinraspberry',
+      linkedin: 'https://www.linkedin.com/in/-bhavyamishra?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app',
+      instagram: 'https://instagram.com/_.bhavyamishra'
     },
     {
       name: 'Ishita Bhatt',
       semester: '5th Semester',
       program: 'Integrated CSE-MBA',
       rollNo: '23BTM009',
-      github: 'https://github.com/ishitabhatt',
+      github: '#',
       linkedin: 'https://linkedin.com/in/ishitabhatt',
-      instagram: 'https://instagram.com/ishitabhatt'
+      instagram: 'https://instagram.com/ishitaa.28'
     }
   ];
 
   return (
     <div className={`min-h-screen transition-colors ${
       darkMode 
-        ? 'bg-gradient-to-br from-slate-900 via-amber-950 to-slate-900 text-amber-50' 
+        ? 'dark' 
         : 'bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100 text-slate-800'
     }`}>
       {/* Navigation */}
@@ -50,15 +52,25 @@ export default function AboutUs() {
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center space-x-2">
-              <span className="text-2xl font-bold bg-gradient-to-r from-orange-500 to-amber-600 bg-clip-text text-transparent">
-                GitaGPT
-              </span>
-            </Link>
+              <Link href="/" className="flex items-center space-x-2 cursor-pointer group">
+                <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12 group-hover:drop-shadow-[0_0_8px_rgba(251,146,60,0.8)]" />
+                <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-orange-500 to-amber-600 bg-clip-text text-transparent 
+                  transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(251,146,60,0.5)]">
+                  GitaGPT
+                </span>
+              </Link>
             <div className="flex items-center space-x-6">
               <Link href="/" className="hover:text-orange-500 transition-colors">Home</Link>
               <Link href="/about" className="text-orange-500">About</Link>
               <Link href="/contact" className="hover:text-orange-500 transition-colors">Contact</Link>
+              <button
+                onClick={() => setDarkMode(!darkMode)}
+                className={`p-1.5 sm:p-2 rounded-lg transition-all cursor-pointer hover:scale-110 ${
+                  darkMode ? 'bg-amber-900/50 hover:bg-amber-800' : 'bg-orange-100 hover:bg-orange-200'
+                }`}
+              >
+                {darkMode ? <Sun className="w-4 h-4 sm:w-5 sm:h-5" /> : <Moon className="w-4 h-4 sm:w-5 sm:h-5" />}
+              </button>
             </div>
           </div>
         </div>

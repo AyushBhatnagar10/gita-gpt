@@ -3,9 +3,10 @@ import React, { useState } from 'react';
 import { User, Mail, Phone, MapPin, Edit2, Save, BookOpen, MessageCircle, Award, Calendar, Heart } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import { useAuth } from '@/components/shared/AuthContext';
+import { useThemeMode } from '@/hooks/useThemeMode';
 
 export default function Profile() {
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useThemeMode();
   const [isEditing, setIsEditing] = useState(false);
   const { userData } = useAuth();
 

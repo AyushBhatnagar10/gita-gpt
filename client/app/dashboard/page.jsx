@@ -8,9 +8,10 @@ import WelcomeSection from '@/components/dashboard/WelcomeSection';
 import TodaysVerse from '@/components/dashboard/TodaysVerse';
 import SpiritualProgress from '@/components/dashboard/SpiritualProgress';
 import RecentChats from '@/components/dashboard/RecentChats';
+import { useThemeMode } from '@/hooks/useThemeMode';
 
 export default function Dashboard() {
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useThemeMode();
   const { currentUser, userData } = useAuth();
   const router = useRouter();
 
@@ -33,7 +34,7 @@ export default function Dashboard() {
   return (
     <div className={`min-h-screen transition-colors ${
       darkMode 
-        ? 'bg-gradient-to-br from-slate-900 via-amber-950 to-slate-900 text-amber-50' 
+        ? 'dark' 
         : 'bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100 text-slate-800'
     }`}>
       <Sidebar darkMode={darkMode} />

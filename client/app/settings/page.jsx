@@ -2,9 +2,10 @@
 import React, { useState } from 'react';
 import { Bell, Lock, Palette, Globe, Download, Trash2, Shield, Moon, Sun } from 'lucide-react';
 import Sidebar from '@/components/dashboard/Sidebar';
+import { useThemeMode } from '@/hooks/useThemeMode';
 
 export default function Settings() {
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useThemeMode();
   const [settings, setSettings] = useState({
     notifications: true,
     emailUpdates: false,
@@ -27,7 +28,7 @@ export default function Settings() {
   return (
     <div className={`min-h-screen transition-colors ${
       darkMode 
-        ? 'bg-gradient-to-br from-slate-900 via-amber-950 to-slate-900 text-amber-50' 
+        ? 'dark' 
         : 'bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100 text-slate-800'
     }`}>
       <Sidebar darkMode={darkMode} />

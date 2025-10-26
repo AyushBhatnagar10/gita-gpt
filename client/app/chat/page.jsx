@@ -2,9 +2,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Sparkles, BookOpen, Brain, MessageSquare, Smile, Heart, Cloud, Zap, Loader2, RotateCcw, Copy, Share2, Star, ChevronDown, AlertCircle } from 'lucide-react';
 import { sendChatMessage, createSession } from '@/lib/api';
+import { useThemeMode } from '@/hooks/useThemeMode';
 
 const ChatInterface = () => {
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useThemeMode();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -133,7 +134,7 @@ const ChatInterface = () => {
   return (
     <div className={`flex flex-col h-screen transition-colors duration-500 ${
       darkMode 
-        ? 'bg-gradient-to-br from-slate-900 via-amber-950 to-slate-900' 
+        ? 'dark' 
         : 'bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100'
     }`}>
       {/* Header */}

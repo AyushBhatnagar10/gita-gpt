@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "GeetaManthan+"
     
     # CORS
-    ALLOWED_ORIGINS: List[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
+    ALLOWED_ORIGINS: List[str] = ["http://localhost:3000", "http://127.0.0.1:3000","https://gita-gpt-navn.vercel.app/"]
     
     # Database
     DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://user:password@localhost:5432/geetamanthan")
